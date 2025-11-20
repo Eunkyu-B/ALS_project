@@ -1,0 +1,142 @@
+---
+title: "sesame_ELBAR"
+author: "Eunkyu Bang"
+date: "2024-03-12"
+output: html_document
+---
+
+```{r}
+library(sesame)
+sesameDataCache()
+```
+
+```{r}
+sdf=readIDATpair("~/idat2/idat_new1/208066090122_R01C01")
+```
+
+
+```{r}
+sdf = ELBAR(sdf)
+betas = getBetas(sdf, sum.TypeI = TRUE)
+```
+
+
+```{r}
+betas = getBetas(sdf)
+head(betas)
+```
+
+
+```{r}
+head(sdf$mask)
+```
+
+
+```{r}
+sum(sdf$mask)   # number of probes to be NA-masked
+```
+
+
+```{r}
+sum(is.na(betas)) # should be the same as above
+```
+
+
+```{r}
+sum(sdf$mask)  # before resetting
+```
+
+
+```{r}
+sum(resetMask(sdf)$mask)  # after resetting, expect 0
+```
+
+
+```{r}
+sum(is.na(getBetas(sdf, mask=FALSE)))  # expect 0
+```
+
+
+```{r}
+sum(sdf$mask)  # before pOOBAH
+```
+
+
+```{r}
+sum(pOOBAH(sdf)$mask) # after pOOBAH, expect more probes
+```
+
+
+```{r}
+sum(pOOBAH(resetMask(sdf))$mask) # pOOBAH-only masking
+```
+
+
+```{r}
+pvals = pOOBAH(sdf, return.pval=TRUE)
+sdf2 = addMask(sdf, pvals > 0.05) # default, recommend between 0.05 and 0.2
+
+```
+
+
+```{r}
+sdf.nb = noob(sdf)          # noob background subtraction
+sdf.sb = scrub(sdf)         # more aggressive background subtraction
+```
+
+
+```{r}
+betas = getBetas(sdf) # retrieve beta values
+```
+
+
+
+```{r}
+betas_I = do.call(cbind, BiocParallel::bplapply(
+    searchIDATprefixes("~/idat2/idat_new1"), function(pfx) {
+        getBetas(noob(pOOBAH(dyeBiasNL(inferInfiniumIChannel(ELBAR(
+            readIDATpair(pfx)))))))
+    }, BPPARAM = BiocParallel::MulticoreParam(2)))
+```
+
+
+```{r}
+betas_Q = do.call(cbind, BiocParallel::bplapply(
+    searchIDATprefixes("~/idat2/idat_new1"), function(pfx) {
+        getBetas(noob(pOOBAH(dyeBiasNL(inferInfiniumIChannel(qualityMask(
+            readIDATpair(pfx)))))))
+    }, BPPARAM = BiocParallel::MulticoreParam(2)))
+```
+
+
+
+```{r}
+nrow(betas_I)
+```
+
+
+
+```{r}
+nrow(betas_Q)
+```
+
+
+
+```{r}
+nrow(betas_Q %>%  na.omit())
+```
+
+
+```{r}
+nrow(betas_I %>%  na.omit())
+```
+
+```{r}
+write.table(betas_Q, file = "betas_Q.txt", sep = "\t",
+             quote = FALSE)
+```
+
+```{r}
+write.table(betas_I, file = "betas_I.txt", sep = "\t",
+             quote = FALSE)
+```

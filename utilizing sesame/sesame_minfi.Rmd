@@ -1,0 +1,188 @@
+---
+title: "sesame and minfi"
+author: "Eunkyu Bang"
+date: "2024-03-09"
+output: html_document
+---
+
+```{r}
+library(sesame)
+library(dplyr)
+library(illuminaio)
+library(minfi)
+sesameDataCache()
+library(minfi)
+library(GEOquery)
+```
+
+
+```{r}
+library(minfi)
+library(IlluminaHumanMethylation450kmanifest)
+RGset <- read.metharray.exp('~/1_Raw.data/idat2')
+RGset@annotation=c(array='IlluminaHumanMethylationEPIC', annotation='ilm10b2.hg19')
+MSet <- preprocessRaw(RGset)
+BetaMatrix <- getBeta(MSet, type = 'Illumina')
+```
+
+```{r}
+nrow(RGset)
+```
+
+```{r}
+RGset
+```
+
+```{r}
+qc <- getQC(MSet)
+qc
+```
+
+```{r}
+plotQC(qc)
+```
+
+```{r}
+manifest <- getManifest(RGSet)
+manifest
+```
+
+
+```{r}
+RGset <- read.metharray.exp('~/idat_old')
+
+```
+
+```{r}
+RGset@annotation=c(array='IlluminaHumanMethylationEPIC', annotation='ilm10b2.hg19')
+
+```
+
+```{r}
+MSet <- preprocessRaw(RGset)
+
+```
+
+```{r}
+BetaMatrix <- getBeta(MSet, type = 'Illumina')
+```
+
+```{r}
+manifest <- getManifest(RGset)
+manifest
+```
+
+```{r}
+head(getProbeInfo(manifest))
+```
+
+```{r}
+MSet <- preprocessRaw(RGset) 
+MSet
+```
+
+```{r}
+RSet <- ratioConvert(MSet, what = "both", keepCN = TRUE)
+RSet
+```
+
+```{r}
+beta <- getBeta(RSet)
+```
+
+```{r}
+GRset <- mapToGenome(RSet)
+GRset
+```
+
+
+
+```{r}
+beta <- getBeta(GRset)
+M <- getM(GRset)
+CN <- getCN(GRset)
+```
+
+```{r}
+sampleNames <- sampleNames(GRset)
+probeNames <- featureNames(GRset)
+pheno <- pData(GRset)
+```
+
+```{r}
+gr <- granges(GRset)
+head(gr, n= 3)
+```
+
+```{r}
+qc <- getQC(MSet)
+qc
+```
+
+```{r}
+plotQC(qc)
+```
+
+```{r}
+densityPlot(MSet)
+```
+
+```{r}
+densityBeanPlot(MSet)
+```
+
+```{r}
+controlStripPlot(RGset, controls="BISULFITE CONVERSION II")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
